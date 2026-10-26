@@ -39,7 +39,9 @@ MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
 
 # add the admin
-setup_admin(app)
+# Panel /admin solo en desarrollo (en Render no existe, protege los datos de clientes)
+if ENV == "development":
+    setup_admin(app)
 
 # add the admin
 setup_commands(app)
