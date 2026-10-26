@@ -1,4 +1,4 @@
-import { NEGOCIO } from "../data/negocioDulceFresa";
+import { NEGOCIO } from "../data/Negociodulcefresa";
 import "../styles/PoliticaDatos.css";
 
 /*
