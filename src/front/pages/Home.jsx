@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { TarjetaFidelizacion, TarjetaCargando, FormularioTarjeta, usePrograma } from "../components/Tarjetafidelizacion";
 import { SelloFresa } from "../components/Sellofresa";
 import { FavoritoCard } from "../components/Favoritocard";
-import { HojaInferior } from "../components/Hojainferior";
+import { HojaInferior } from "../components/HojaInferior";
 import { PanelPromos } from "../components/PanelPromos";
 import { useMenu } from "../components/Menudigital";
 import { useTarjeta } from "../hooks/useTarjeta";
