@@ -65,12 +65,33 @@ def limpiar_telefono(valor):
     return digitos
 
 
+COOKIE_TARJETA = "df_tarjeta"
+COOKIE_DURACION = 60 * 60 * 24 * 365  # 1 año
+
+
+def token_actual():
+    """El token llega en la cabecera (localStorage) o en la cookie del servidor (respaldo para Safari)."""
+    return request.headers.get("X-Cliente-Token") or request.cookies.get(COOKIE_TARJETA)
+
+
 def cliente_actual():
-    """Lee el token "recordarme" que el celular envía en la cabecera X-Cliente-Token."""
-    cliente = Cliente.por_token(request.headers.get("X-Cliente-Token"))
+    cliente = Cliente.por_token(token_actual())
     if cliente is None:
         raise APIException("Tarjeta no encontrada en este dispositivo", 401, {"codigo_error": "SIN_TARJETA"})
     return cliente
+
+
+def con_cookie(respuesta, codigo, token=None):
+    """
+    Guarda (o renueva por 1 año) la cookie de la tarjeta.
+    Safari borra el localStorage tras 7 días sin visitas, pero NO las cookies que pone el servidor.
+    """
+    respuesta = jsonify(respuesta)
+    token = token or token_actual()
+    if token:
+        respuesta.set_cookie(COOKIE_TARJETA, token, max_age=COOKIE_DURACION, httponly=True,
+                             secure=True, samesite="Lax", path="/api")
+    return respuesta, codigo
 
 
 def tag_valido(codigo):
@@ -175,7 +196,7 @@ def registrar_cliente():
         db.session.rollback()
         raise APIException("Ya tienes una tarjeta. Recupérala con tu correo y teléfono.", 409,
                            {"codigo_error": "YA_REGISTRADO"})
-    return jsonify(respuesta_tarjeta(cliente, programa, token=token, sello_nuevo=sello_nuevo)), 201
+    return con_cookie(respuesta_tarjeta(cliente, programa, token=token, sello_nuevo=sello_nuevo), 201, token)
 
 
 @api.route('/clientes/recuperar', methods=['POST'])
@@ -195,18 +216,32 @@ def recuperar_tarjeta():
 
     token = cliente.generar_token()
     db.session.commit()
-    return jsonify(respuesta_tarjeta(cliente, ProgramaFidelizacion.actual(), token=token)), 200
+    return con_cookie(respuesta_tarjeta(cliente, ProgramaFidelizacion.actual(), token=token), 200, token)
+
+
+@api.route('/clientes/salir', methods=['POST'])
+def salir_tarjeta():
+    """ "¿No eres tú?": desconecta solo este dispositivo y borra la cookie."""
+    token = token_actual()
+    cliente = Cliente.por_token(token)
+    if cliente:
+        cliente.cerrar_dispositivo(token)
+        db.session.commit()
+    respuesta = jsonify({"ok": True})
+    respuesta.delete_cookie(COOKIE_TARJETA, path="/api", secure=True, samesite="Lax")
+    return respuesta, 200
 
 
 @api.route('/tarjeta', methods=['GET'])
 def ver_tarjeta():
     cliente = cliente_actual()
     programa = ProgramaFidelizacion.actual()
-    return jsonify(respuesta_tarjeta(
+    db.session.commit()  # guarda el "último uso" del dispositivo
+    return con_cookie(respuesta_tarjeta(
         cliente, programa,
         historial=[s.serialize() for s in cliente.sellos[:20]],
         canjes=[c.serialize() for c in cliente.canjes[:10]],
-    )), 200
+    ), 200)
 
 
 @api.route('/sellos', methods=['POST'])
@@ -220,7 +255,7 @@ def sumar_sello():
     programa = ProgramaFidelizacion.actual()
     otorgar_sello(cliente, programa, tag=tag)
     db.session.commit()
-    return jsonify(respuesta_tarjeta(cliente, programa, sello_nuevo=True)), 201
+    return con_cookie(respuesta_tarjeta(cliente, programa, sello_nuevo=True), 201)
 
 
 @api.route('/menu', methods=['GET'])

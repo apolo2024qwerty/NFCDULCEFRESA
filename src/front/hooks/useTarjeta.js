@@ -6,6 +6,7 @@ import {
   registrarCliente,
   recuperarTarjeta,
   sumarSello,
+  cerrarTarjeta,
 } from "../services/fidelizacion";
 
 /*
@@ -23,11 +24,8 @@ export function useTarjeta() {
   const [selloNuevo, setSelloNuevo] = useState(false);
 
   const cargar = useCallback(async () => {
-    if (!getToken()) {
-      setDatos(null);
-      setCargando(false);
-      return;
-    }
+    // Siempre preguntamos al servidor: aunque Safari haya borrado el localStorage,
+    // la cookie de 1 año del servidor sigue reconociendo la tarjeta.
     setCargando(true);
     try {
       setDatos(await obtenerTarjeta());
@@ -64,6 +62,7 @@ export function useTarjeta() {
   }, []);
 
   const salir = useCallback(() => {
+    cerrarTarjeta(); // borra la cookie del servidor
     olvidarTarjeta();
     setDatos(null);
     setSelloNuevo(false);

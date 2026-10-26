@@ -111,6 +111,8 @@ class Cliente(db.Model):
                                                  order_by="Sello.fecha.desc()")
     canjes: Mapped[list["Canje"]] = relationship(back_populates="cliente", cascade="all, delete-orphan",
                                                  order_by="Canje.fecha.desc()")
+    dispositivos: Mapped[list["DispositivoCliente"]] = relationship(back_populates="cliente",
+                                                                    cascade="all, delete-orphan")
 
     # --- token del dispositivo -------------------------------------------
     @staticmethod
@@ -118,18 +120,35 @@ class Cliente(db.Model):
         return hashlib.sha256(token.encode()).hexdigest()
 
     def generar_token(self):
-        """Crea un token nuevo (invalida el anterior) y devuelve el valor en claro UNA sola vez."""
+        """
+        Crea un token para ESTE dispositivo y devuelve el valor en claro UNA sola vez.
+        Ya no borra los otros: así Safari y la app de la pantalla de inicio (iPhone)
+        pueden estar conectados al mismo tiempo.
+        """
         token = secrets.token_urlsafe(32)
-        self.token_hash = self.hash_token(token)
+        self.dispositivos.append(DispositivoCliente(token_hash=self.hash_token(token)))
         return token
 
     @classmethod
     def por_token(cls, token):
         if not token:
             return None
-        return db.session.execute(
-            db.select(cls).where(cls.token_hash == cls.hash_token(token))
+        h = cls.hash_token(token)
+        dispositivo = db.session.execute(
+            db.select(DispositivoCliente).where(DispositivoCliente.token_hash == h)
         ).scalar_one_or_none()
+        if dispositivo:
+            dispositivo.ultimo_uso = ahora()
+            return dispositivo.cliente
+        # tarjetas creadas antes de este cambio
+        return db.session.execute(db.select(cls).where(cls.token_hash == h)).scalar_one_or_none()
+
+    def cerrar_dispositivo(self, token):
+        """Desconecta solo el dispositivo de ese token ("¿No eres tú?")."""
+        h = self.hash_token(token or "")
+        if self.token_hash == h:
+            self.token_hash = None
+        db.session.execute(db.delete(DispositivoCliente).where(DispositivoCliente.token_hash == h))
 
     # --- conteos -----------------------------------------------------------
     @property
@@ -159,6 +178,21 @@ class Cliente(db.Model):
             "creado_en": iso(self.creado_en),
             "ultima_visita": iso(self.ultima_visita),
         }
+
+
+# ---------------------------------------------------------------------------
+# Dispositivos conectados a una tarjeta (celular, Safari, app de inicio...)
+# ---------------------------------------------------------------------------
+class DispositivoCliente(db.Model):
+    __tablename__ = "dispositivo_cliente"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cliente_id: Mapped[int] = mapped_column(ForeignKey("cliente.id", ondelete="CASCADE"), nullable=False, index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora, nullable=False)
+    ultimo_uso: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=ahora)
+
+    cliente: Mapped["Cliente"] = relationship(back_populates="dispositivos")
 
 
 # ---------------------------------------------------------------------------

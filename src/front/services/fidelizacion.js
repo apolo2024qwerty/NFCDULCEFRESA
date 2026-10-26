@@ -75,6 +75,9 @@ export async function recuperarTarjeta({ correo, telefono, recordar = true }) {
 
 export const obtenerTarjeta = () => request("/tarjeta", { auth: true });
 
+// "¿No eres tú?": desconecta este celular en el servidor (borra la cookie de 1 año)
+export const cerrarTarjeta = () => request("/clientes/salir", { method: "POST", auth: true }).catch(() => {});
+
 export const sumarSello = (tag) => request("/sellos", { method: "POST", body: { tag }, auth: true });
 
 // ---------- contenido público ----------
