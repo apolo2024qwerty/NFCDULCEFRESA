@@ -195,7 +195,7 @@ export const Home = () => {
         <ComoFunciona programa={programa} tieneTarjeta={Boolean(t.datos)} onCrear={() => setHoja("registro")} />
       </HojaInferior>
 
-      <HojaInferior abierta={hoja === "promos"} onCerrar={cerrar} titulo="Enviar promo">
+      <HojaInferior abierta={hoja === "promos"} onCerrar={cerrar} titulo="Panel del equipo">
         <PanelPromos />
       </HojaInferior>
     </main>

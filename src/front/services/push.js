@@ -93,3 +93,14 @@ export const resumenPromos = (clave) => pedir("/promos/resumen", { headers: { "X
 
 export const enviarPromo = (clave, { titulo, mensaje, url }) =>
   pedir("/promos/enviar", { method: "POST", body: { titulo, mensaje, url }, headers: { "X-Clave-Promos": clave } });
+
+
+// ---------- caja (panel del candado) ----------
+export const buscarClientes = (clave, q) =>
+  pedir(`/equipo/clientes?q=${encodeURIComponent(q || "")}`, { headers: { "X-Clave-Promos": clave } });
+
+export const entregarPremio = (clave, codigo) =>
+  pedir(`/equipo/clientes/${codigo}/canjear`, { method: "POST", headers: { "X-Clave-Promos": clave } });
+
+export const sumarFresaManual = (clave, codigo) =>
+  pedir(`/equipo/clientes/${codigo}/sello`, { method: "POST", headers: { "X-Clave-Promos": clave } });

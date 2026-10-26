@@ -560,3 +560,67 @@ def promos_enviar():
             fallidos += 1
     db.session.commit()
     return jsonify({"enviados": enviados, "fallidos": fallidos, "eliminados": borrados}), 200
+
+
+
+# ===========================================================================
+# CAJA (panel del candado): buscar cliente, entregar premio, sumar fresa manual
+# Usa la misma clave del candado: cabecera X-Clave-Promos
+# ===========================================================================
+def entregar_premio(cliente, programa):
+    """Marca como 'canjeados' los sellos usados y registra el canje. La tarjeta vuelve a 0."""
+    activos = sorted(cliente.sellos_activos, key=lambda s: s.fecha)
+    if len(activos) < programa.sellos_requeridos:
+        raise APIException(f"Le faltan {programa.sellos_requeridos - len(activos)} fresas para el premio", 400,
+                           {"codigo_error": "SELLOS_INSUFICIENTES"})
+    canje = Canje(cliente=cliente, premio=programa.premio, sellos_usados=programa.sellos_requeridos)
+    db.session.add(canje)
+    db.session.flush()
+    for sello in activos[:programa.sellos_requeridos]:
+        sello.estado = "canjeado"
+        sello.canje_id = canje.id
+    return canje
+
+
+def ficha_cliente(cliente, programa):
+    return {**cliente.serialize(), **cliente.resumen_tarjeta(programa),
+            "codigo_corto": cliente.codigo[:8].upper()}
+
+
+@api.route('/equipo/clientes', methods=['GET'])
+def equipo_buscar_clientes():
+    """?q= código de la tarjeta (#C7BB9D20), celular o nombre"""
+    verificar_clave_promos()
+    programa = ProgramaFidelizacion.actual()
+    q = (request.args.get("q") or "").strip().lstrip("#")
+    consulta = db.select(Cliente)
+    if q:
+        filtros = [func.lower(Cliente.nombre).like(f"%{q.lower()}%"), Cliente.codigo.like(f"{q.lower()}%")]
+        digitos = re.sub(r"\D", "", q)
+        if len(digitos) >= 4:
+            filtros.append(Cliente.telefono.like(f"%{digitos}%"))
+        consulta = consulta.where(or_(*filtros))
+    consulta = consulta.order_by(Cliente.ultima_visita.desc().nullslast(), Cliente.creado_en.desc()).limit(15)
+    clientes = db.session.execute(consulta).scalars().all()
+    return jsonify([ficha_cliente(c, programa) for c in clientes]), 200
+
+
+@api.route('/equipo/clientes/<codigo>/canjear', methods=['POST'])
+def equipo_canjear(codigo):
+    verificar_clave_promos()
+    cliente = cliente_por_codigo(codigo)
+    programa = ProgramaFidelizacion.actual()
+    canje = entregar_premio(cliente, programa)
+    db.session.commit()
+    return jsonify({"cliente": ficha_cliente(cliente, programa), "canje": canje.serialize()}), 200
+
+
+@api.route('/equipo/clientes/<codigo>/sello', methods=['POST'])
+def equipo_sello_manual(codigo):
+    """Por si el NFC falla o el cliente no tiene el celular a mano. No respeta el tiempo de espera."""
+    verificar_clave_promos()
+    cliente = cliente_por_codigo(codigo)
+    programa = ProgramaFidelizacion.actual()
+    otorgar_sello(cliente, programa, origen="manual", respetar_cooldown=False)
+    db.session.commit()
+    return jsonify({"cliente": ficha_cliente(cliente, programa)}), 201
