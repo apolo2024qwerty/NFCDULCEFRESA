@@ -212,7 +212,7 @@ const TarjetaActiva = ({ t }) => {
       <div className={`df-tarjeta__cara ${tarjeta.premio_disponible ? "df-tarjeta__cara--premio" : ""}`}>
         <div className="df-tarjeta__marca">
           <span className="df-tarjeta__logo">Dulce Fresa</span>
-          <span className="df-tarjeta__codigo" title="Tu código de cliente">#{codigoCorto}</span>
+          <span className="df-tarjeta__tipo">Tarjeta de fidelidad</span>
         </div>
 
         <p className="df-tarjeta__hola">¡Hola, {primerNombre}!</p>
