@@ -33,7 +33,7 @@
 /* En la columna de celular el menú siempre va en una sola columna */
 .df-pagina .df-menu__grid {
   grid-template-columns: 1fr;
-  gap: 14px;
+  gap: 20px;
 }
 
 /* La galería en dos columnas también en pantallas grandes */

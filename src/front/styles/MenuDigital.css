@@ -225,6 +225,6 @@
 @media (max-width: 560px) {
   .df-menu__grid {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 20px;
   }
 }

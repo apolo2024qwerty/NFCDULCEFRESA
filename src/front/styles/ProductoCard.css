@@ -14,10 +14,19 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s;
 }
 
-.df-pcard:hover {
-  transform: translateY(-4px) rotate(-0.4deg);
+/* El efecto de levantar la card solo en computador (con mouse).
+   En celular el "hover" se queda pegado al tocar y hacía que las cards se montaran. */
+@media (hover: hover) and (pointer: fine) {
+  .df-pcard:hover {
+    transform: translateY(-3px);
+    border-color: var(--df-rosa);
+    box-shadow: var(--df-sombra);
+  }
+}
+
+/* En celular: al tocar la card solo se ilumina el borde, sin moverse */
+.df-pcard:active {
   border-color: var(--df-rosa);
-  box-shadow: var(--df-sombra);
 }
 
 /* ---------- foto ---------- */
@@ -35,8 +44,10 @@
   transition: transform 0.5s ease;
 }
 
-.df-pcard:hover .df-pcard__foto img {
-  transform: scale(1.06);
+@media (hover: hover) and (pointer: fine) {
+  .df-pcard:hover .df-pcard__foto img {
+    transform: scale(1.06);
+  }
 }
 
 .df-pcard__sin-foto {
