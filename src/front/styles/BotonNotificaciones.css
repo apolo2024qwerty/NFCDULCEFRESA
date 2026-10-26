@@ -1,0 +1,136 @@
+/* ==========================================================================
+   Botón de avisos (notificaciones push)
+   ========================================================================== */
+
+.df-avisos {
+  margin-top: 12px;
+}
+
+.df-avisos__boton,
+.df-avisos--activo,
+.df-avisos--info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 20px;
+  border: 2px solid var(--df-lila-2);
+  background: #fff;
+  text-align: left;
+  color: var(--df-texto);
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.df-avisos__boton {
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.2s;
+}
+
+.df-avisos__boton:active {
+  transform: scale(0.97);
+}
+
+.df-avisos__boton > span:nth-child(2) {
+  flex: 1;
+  display: grid;
+  gap: 1px;
+}
+
+.df-avisos__boton strong {
+  font-family: var(--df-display);
+  font-weight: 400;
+  font-size: 1.1rem;
+  color: var(--df-magenta);
+}
+
+.df-avisos__boton small {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--df-texto-suave);
+}
+
+.df-avisos__boton > .fa-chevron-right {
+  color: var(--df-magenta);
+}
+
+.df-avisos__icono {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--df-amarillo);
+  color: var(--df-chocolate);
+  font-size: 1.1rem;
+}
+
+.df-avisos__icono .fa-bell {
+  animation: df-campana 2.4s ease-in-out infinite;
+  transform-origin: 50% 0;
+}
+
+/* Si aceptó promos al registrarse, el botón se destaca */
+.df-avisos--destacar .df-avisos__boton {
+  border-color: var(--df-rosa);
+  box-shadow: 0 0 0 4px rgba(236, 58, 143, 0.14);
+}
+
+.df-avisos--activo {
+  background: #e9f9ef;
+  border-color: #bfe9cf;
+}
+
+.df-avisos--activo .df-avisos__icono {
+  background: #4ecb83;
+  color: #fff;
+}
+
+.df-avisos--activo .df-avisos__icono .fa-bell {
+  animation: none;
+}
+
+.df-avisos--activo p,
+.df-avisos--info p {
+  flex: 1;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.df-avisos--activo strong {
+  display: block;
+  color: #237a48;
+}
+
+.df-avisos--info .df-avisos__icono {
+  background: var(--df-lila);
+  color: var(--df-magenta);
+}
+
+.df-avisos__error {
+  margin: 8px 4px 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--df-magenta-osc);
+}
+
+@keyframes df-campana {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  70% {
+    transform: rotate(14deg);
+  }
+  80% {
+    transform: rotate(-12deg);
+  }
+  90% {
+    transform: rotate(6deg);
+  }
+}

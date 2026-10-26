@@ -291,3 +291,24 @@ class Contenido(db.Model):
     def serialize(self):
         return {"id": self.id, "tipo": self.tipo, "url": self.url, "titulo": self.titulo,
                 "seccion": self.seccion, "orden": self.orden, "activo": self.activo}
+
+
+
+
+# ---------------------------------------------------------------------------
+# Notificaciones push (celulares que aceptaron recibir promos)
+# ---------------------------------------------------------------------------
+class SuscripcionPush(db.Model):
+    __tablename__ = "suscripcion_push"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cliente_id: Mapped[int] = mapped_column(ForeignKey("cliente.id", ondelete="CASCADE"), nullable=False, index=True)
+    endpoint: Mapped[str] = mapped_column(String(700), unique=True, nullable=False)
+    p256dh: Mapped[str] = mapped_column(String(255), nullable=False)
+    auth: Mapped[str] = mapped_column(String(255), nullable=False)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora, nullable=False)
+
+    cliente: Mapped["Cliente"] = relationship()
+
+    def como_webpush(self):
+        return {"endpoint": self.endpoint, "keys": {"p256dh": self.p256dh, "auth": self.auth}}

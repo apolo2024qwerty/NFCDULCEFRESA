@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { SelloFresa } from "../components/Sellofresa";
+import { HojaInferior } from "../components/HojaInferior";
+import { PoliticaDatos } from "../components/PoliticaDatos";
+import { BotonNotificaciones } from "../components/BotonNotificaciones";
 import { obtenerPrograma } from "../services/fidelizacion";
 import "../styles/TarjetaFidelizacion.css";
 
@@ -60,6 +63,7 @@ export const FormularioTarjeta = ({ t, tag = null, modoInicial = "registro", onL
   const [form, setForm] = useState(FORM_VACIO);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
+  const [verPolitica, setVerPolitica] = useState(false);
   const esRegistro = modo === "registro";
 
   const cambiar = (e) => {
@@ -128,10 +132,10 @@ export const FormularioTarjeta = ({ t, tag = null, modoInicial = "registro", onL
         <>
           <Opcion name="acepta_datos" checked={form.acepta_datos} onChange={cambiar} obligatoria>
             Acepto el{" "}
-            {/* ... aquí pega el link de tu política de tratamiento de datos (Ley 1581 de 2012) */}
-            <a href="#" target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="df-link"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setVerPolitica(true); }}>
               tratamiento de mis datos
-            </a>
+            </button>
           </Opcion>
           <Opcion name="acepta_marketing" checked={form.acepta_marketing} onChange={cambiar}>
             Quiero enterarme de promos y sabores nuevos
@@ -166,6 +170,14 @@ export const FormularioTarjeta = ({ t, tag = null, modoInicial = "registro", onL
           {esRegistro ? "Recupérala aquí" : "Crea tu tarjeta"}
         </button>
       </p>
+
+      <HojaInferior abierta={verPolitica} onCerrar={() => setVerPolitica(false)} titulo="Tratamiento de datos">
+        <PoliticaDatos />
+        <button type="button" className="df-btn df-btn--bloque" style={{ marginTop: 16 }}
+          onClick={() => { setForm((f) => ({ ...f, acepta_datos: true })); setVerPolitica(false); setError(""); }}>
+          Entendido, acepto <i className="fa-solid fa-check" aria-hidden="true" />
+        </button>
+      </HojaInferior>
     </form>
   );
 };
@@ -247,6 +259,8 @@ const TarjetaActiva = ({ t }) => {
           </p>
         </div>
       )}
+
+      <BotonNotificaciones destacar={cliente.acepta_marketing} />
 
       <div className="df-tarjeta__pie">
         <span>

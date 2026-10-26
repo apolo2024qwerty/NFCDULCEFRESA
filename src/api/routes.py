@@ -415,3 +415,113 @@ registrar_crud("productos", ProductoMenu,
                ["categoria_id", "nombre", "descripcion", "precio", "imagen_url", "destacado", "disponible", "orden"],
                ["nombre"])
 registrar_crud("contenido", Contenido, ["tipo", "url", "titulo", "seccion", "orden", "activo"], ["tipo", "url"])
+
+
+
+# ===========================================================================
+# NOTIFICACIONES PUSH (promos a los clientes que aceptaron)
+# ===========================================================================
+import hmac
+import json
+import os
+
+from pywebpush import webpush, WebPushException
+from api.models import SuscripcionPush
+
+# ⚠️ Clave del panel de promos. Está en el código SOLO PARA PROBAR.
+#    Para producción ponla en Render como variable CLAVE_PROMOS y cámbiala.
+CLAVE_PROMOS = os.getenv("CLAVE_PROMOS", "heladofresa")
+
+
+def verificar_clave_promos():
+    clave = request.headers.get("X-Clave-Promos", "")
+    if not hmac.compare_digest(clave.encode(), CLAVE_PROMOS.encode()):
+        raise APIException("Clave incorrecta", 401, {"codigo_error": "CLAVE_INCORRECTA"})
+
+
+def suscripciones_activas():
+    return db.session.execute(
+        db.select(SuscripcionPush).join(Cliente).where(Cliente.acepta_marketing.is_(True))
+    ).scalars().all()
+
+
+@api.route('/push/clave-publica', methods=['GET'])
+def push_clave_publica():
+    return jsonify({"clave": os.getenv("VAPID_PUBLIC_KEY", "")}), 200
+
+
+@api.route('/push/suscribir', methods=['POST'])
+def push_suscribir():
+    cliente = cliente_actual()
+    data = body()
+    endpoint = data.get("endpoint")
+    llaves = data.get("keys") or {}
+    if not endpoint or not llaves.get("p256dh") or not llaves.get("auth"):
+        raise APIException("Suscripción inválida", 400)
+
+    sub = db.session.execute(
+        db.select(SuscripcionPush).where(SuscripcionPush.endpoint == endpoint)
+    ).scalar_one_or_none()
+    if sub is None:
+        sub = SuscripcionPush(endpoint=endpoint)
+        db.session.add(sub)
+    sub.cliente = cliente
+    sub.p256dh = llaves["p256dh"]
+    sub.auth = llaves["auth"]
+    cliente.acepta_marketing = True  # activar avisos = aceptar promos
+    db.session.commit()
+    return jsonify({"ok": True}), 201
+
+
+@api.route('/push/cancelar', methods=['POST'])
+def push_cancelar():
+    cliente = cliente_actual()
+    endpoint = body().get("endpoint")
+    db.session.execute(
+        db.delete(SuscripcionPush).where(SuscripcionPush.endpoint == endpoint,
+                                         SuscripcionPush.cliente_id == cliente.id)
+    )
+    db.session.commit()
+    return jsonify({"ok": True}), 200
+
+
+@api.route('/promos/resumen', methods=['GET'])
+def promos_resumen():
+    verificar_clave_promos()
+    subs = suscripciones_activas()
+    return jsonify({"celulares": len(subs), "clientes": len({s.cliente_id for s in subs})}), 200
+
+
+@api.route('/promos/enviar', methods=['POST'])
+def promos_enviar():
+    verificar_clave_promos()
+    data = body()
+    titulo = (data.get("titulo") or "").strip()[:60]
+    mensaje = (data.get("mensaje") or "").strip()[:180]
+    url = (data.get("url") or "/").strip() or "/"
+    if not titulo or not mensaje:
+        raise APIException("Escribe un título y un mensaje", 400)
+
+    privada = os.getenv("VAPID_PRIVATE_KEY")
+    if not privada or not os.getenv("VAPID_PUBLIC_KEY"):
+        raise APIException("Faltan las llaves VAPID en el servidor (VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY)", 500)
+    reclamos = {"sub": "mailto:" + os.getenv("VAPID_EMAIL", "contacto@dulcefresa.com")}
+    carga = json.dumps({"title": titulo, "body": mensaje, "url": url})
+
+    enviados, fallidos, borrados = 0, 0, 0
+    for sub in suscripciones_activas():
+        try:
+            webpush(sub.como_webpush(), carga, vapid_private_key=privada, vapid_claims=dict(reclamos),
+                    ttl=60 * 60 * 24, timeout=10)
+            enviados += 1
+        except WebPushException as e:
+            codigo = getattr(e.response, "status_code", None)
+            if codigo in (404, 410):  # el celular canceló o desinstaló: se borra
+                db.session.delete(sub)
+                borrados += 1
+            else:
+                fallidos += 1
+        except Exception:
+            fallidos += 1
+    db.session.commit()
+    return jsonify({"enviados": enviados, "fallidos": fallidos, "eliminados": borrados}), 200

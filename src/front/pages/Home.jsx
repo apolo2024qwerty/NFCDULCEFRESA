@@ -4,6 +4,7 @@ import { TarjetaFidelizacion, TarjetaCargando, FormularioTarjeta, usePrograma } 
 import { SelloFresa } from "../components/Sellofresa";
 import { FavoritoCard } from "../components/Favoritocard";
 import { HojaInferior } from "../components/Hojainferior";
+import { PanelPromos } from "../components/PanelPromos";
 import { useMenu } from "../components/Menudigital";
 import { useTarjeta } from "../hooks/useTarjeta";
 import { NEGOCIO } from "../data/Negociodulcefresa";
@@ -81,12 +82,14 @@ export const Home = () => {
         </section>
 
         {/* ======================================================= LINKS */}
-        <nav className="df-lt__links" aria-label="Enlaces">
-          <LinkCard to="/menu" icono="fa-solid fa-utensils" color="rosa" etiqueta="Menú digital"
-            titulo="¿Qué se te antoja hoy?" detalle="Precios, sabores y adiciones" />
-          <LinkCard to="/videos" icono="fa-solid fa-play" color="turquesa" etiqueta="Videos"
-            titulo="Antojos en video" detalle="Mira cómo preparamos tus favoritos" />
-        </nav>
+        {/*
+  <nav className="df-lt__links" aria-label="Enlaces">
+    <LinkCard to="/menu" icono="fa-solid fa-utensils" color="rosa" etiqueta="Menú digital"
+      titulo="¿Qué se te antoja hoy?" detalle="Precios, sabores y adiciones" />
+    <LinkCard to="/videos" icono="fa-solid fa-play" color="turquesa" etiqueta="Videos"
+      titulo="Antojos en video" detalle="Mira cómo preparamos tus favoritos" />
+  </nav>
+*/}
 
         {/* ======================================================= FAVORITOS */}
         {favoritos.length > 0 && (
@@ -173,6 +176,9 @@ export const Home = () => {
         <footer className="df-lt__pie">
           Hecho con <i className="fa-solid fa-heart" aria-hidden="true" /> en {NEGOCIO.ciudad} · ©{" "}
           {new Date().getFullYear()} {NEGOCIO.nombre}
+          <button type="button" className="df-lt__candado" onClick={() => setHoja("promos")} aria-label="Panel del equipo">
+            <i className="fa-solid fa-lock" aria-hidden="true" />
+          </button>
         </footer>
       </div>
 
@@ -187,6 +193,10 @@ export const Home = () => {
 
       <HojaInferior abierta={hoja === "como"} onCerrar={cerrar} titulo="¿Cómo funciona?">
         <ComoFunciona programa={programa} tieneTarjeta={Boolean(t.datos)} onCrear={() => setHoja("registro")} />
+      </HojaInferior>
+
+      <HojaInferior abierta={hoja === "promos"} onCerrar={cerrar} titulo="Enviar promo">
+        <PanelPromos />
       </HojaInferior>
     </main>
   );

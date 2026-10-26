@@ -27,6 +27,23 @@ def setup_commands(app):
         db.session.commit()
         print(f"Admin listo: {email}")
 
+    @app.cli.command("generar-vapid")
+    def generar_vapid():
+        """Genera las llaves para las notificaciones push. Se hace UNA sola vez."""
+        import base64
+        from cryptography.hazmat.primitives import serialization
+        from py_vapid import Vapid01
+
+        b64 = lambda x: base64.urlsafe_b64encode(x).rstrip(b"=").decode()
+        v = Vapid01()
+        v.generate_keys()
+        publica = v.public_key.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
+        privada = v.private_key.private_numbers().private_value.to_bytes(32, "big")
+        print("Copia estas 3 líneas en tu .env y en Render > Environment:\n")
+        print(f"VAPID_PUBLIC_KEY={b64(publica)}")
+        print(f"VAPID_PRIVATE_KEY={b64(privada)}")
+        print("VAPID_EMAIL=tu@correo.com")
+
     @app.cli.command("crear-tag")
     @click.argument("nombre", default="Caja principal")
     @click.option("--url-base", default="https://TU-DOMINIO.com", help="Dominio del front")
