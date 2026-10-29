@@ -9,7 +9,8 @@
        Los reels de Instagram los puedes descargar y subir aquí.
    ========================================================================== */
 
-const DIRECCION_MAPA = "Cra. 56 #4d-95, Puente Aranda, Bogotá, Cundinamarca";
+// Nombre EXACTO como aparece en Google Maps + dirección: así Maps encuentra el negocio y no otra cosa
+const DIRECCION_MAPA = "Dulce Fresa Heladería El Galán, Cra. 56 #4d-95, Puente Aranda, Bogotá";
 
 export const NEGOCIO = {
   nombre: "Dulce Fresa",
@@ -27,7 +28,7 @@ export const NEGOCIO = {
   barrio: "Puente Aranda",
   ciudad: "Bogotá",
   // Link que abre Google Maps con la ruta (en celular abre la app de Maps)
-  mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(DIRECCION_MAPA)}`,
+  mapsUrl: `https://maps.app.goo.gl/nbjno8BEGXeaDxQ96?g_st=iw`,
   // Mapa pequeño que se ve dentro de la tarjeta "Dónde estamos" (no necesita API key)
   mapaEmbed: `https://www.google.com/maps?q=${encodeURIComponent(DIRECCION_MAPA)}&z=16&output=embed`,
 
