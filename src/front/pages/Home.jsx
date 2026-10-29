@@ -37,7 +37,7 @@ export const Home = () => {
           <LogoAnimado />
           <TituloAnimado texto={NEGOCIO.nombre} />
           <p className="df-lt__sub">
-            {NEGOCIO.subtitulo} · {NEGOCIO.barrio}, {NEGOCIO.ciudad}
+            {NEGOCIO.subtitulo} · {NEGOCIO.ciudad}
           </p>
           <button type="button" className="df-lt__como" onClick={() => setHoja("como")}>
             <i className="fa-solid fa-circle-question" aria-hidden="true" /> ¿Cómo funciona mi tarjeta?

@@ -404,3 +404,9 @@
 .df-pagina .df-menu .df-menu__grid {
   gap: 12px;
 }
+
+
+/* Espacio entre las cards del menú */
+.df-pagina .df-pcard:not(.df-pcard--favorito) {
+  margin-bottom: 16px;
+}
