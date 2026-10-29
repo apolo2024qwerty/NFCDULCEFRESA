@@ -804,3 +804,54 @@
     height: 38px;
   }
 }
+
+
+/* ==========================================================================
+   FAVORITOS EN CARRUSEL (pegado al final: reemplaza lo de arriba)
+   ========================================================================== */
+.df-lt__seccion-cab {
+  margin: 4px 2px 12px;
+}
+
+.df-lt__seccion-cab h2 {
+  font-size: 0.72rem;
+  letter-spacing: 2.5px;
+  color: var(--df-texto-suave);
+}
+
+.df-lt__toca {
+  font-family: var(--df-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--df-texto-suave);
+}
+
+.df-lt__toca i {
+  display: none;
+}
+
+.df-lt__toca::after {
+  content: " →";
+}
+
+/* de cuadrícula a carrusel deslizable; se asoma la siguiente card */
+.df-lt__fav-grid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  margin: 0 -16px;
+  padding: 2px 16px 10px;
+  scroll-padding-inline: 16px;
+  scrollbar-width: none;
+}
+
+.df-lt__fav-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.df-lt__fav-grid > * {
+  flex: 0 0 64%;
+  scroll-snap-align: start;
+}

@@ -260,3 +260,147 @@
     font-size: 0.85rem;
   }
 }
+
+
+/* ==========================================================================
+   MENÚ ESTILO CARTA (pegado al final: reemplaza lo de arriba)
+   Foto cuadrada pequeña a la izquierda + nombre, descripción y precio.
+   Igual en celular y en pantallas grandes.
+   ========================================================================== */
+.df-pagina .df-pcard:not(.df-pcard--favorito) {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--df-lila-2);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__foto {
+  flex: 0 0 96px;
+  width: 96px;
+  height: 96px;
+  min-height: 0;
+  aspect-ratio: 1;
+  border-radius: 16px;
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__sin-foto i {
+  font-size: 1.6rem;
+}
+
+/* etiqueta "Favorito" discreta sobre la foto */
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__etiqueta {
+  top: 6px;
+  left: 6px;
+  padding: 3px 7px;
+  font-size: 0.52rem;
+  letter-spacing: 0.6px;
+  box-shadow: none;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--df-magenta);
+  max-width: calc(100% - 12px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__cuerpo {
+  padding: 2px 2px 2px 0;
+  min-width: 0;
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__nombre {
+  font-family: var(--df-body);
+  font-weight: 800;
+  font-size: 1.02rem;
+  line-height: 1.25;
+  color: var(--df-texto);
+  margin-bottom: 4px;
+}
+
+/* descripción: máximo 2 líneas */
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__desc {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ingredientes: una sola línea de texto suave */
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__incluye {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0 0 10px;
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__incluye li {
+  display: inline;
+  padding: 0;
+  background: none;
+  color: #a98aa0;
+  font-weight: 600;
+  font-size: 0.74rem;
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__incluye li:not(:last-child)::after {
+  content: " · ";
+  color: #d7bccd;
+}
+
+/* precios: compactos, alineados a la derecha */
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__precios {
+  gap: 2px;
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__fila {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--df-texto-suave);
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__fila small {
+  display: none;
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__puntos {
+  border-bottom: 1px dotted var(--df-lila-2);
+  transform: translateY(-3px);
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__fila strong,
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__precio {
+  background: none;
+  padding: 0;
+  font-family: var(--df-body);
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--df-magenta);
+}
+
+.df-pagina .df-pcard:not(.df-pcard--favorito) .df-pcard__precio {
+  font-size: 0.98rem;
+  justify-self: end;
+}
+
+/* sin movimientos al pasar el dedo o el mouse */
+.df-pagina .df-pcard:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.df-pagina .df-pcard:hover .df-pcard__foto img {
+  transform: none;
+}
+
+/* menos espacio entre productos: se lee como una carta */
+.df-pagina .df-menu .df-menu__grid {
+  gap: 12px;
+}

@@ -126,3 +126,73 @@
 .df-fav__ver i {
   margin-left: 4px;
 }
+
+
+/* ==========================================================================
+   FAVORITOS ELEGANTES (pegado al final: reemplaza lo de arriba)
+   Foto protagonista, sin etiquetas de colores, nombre y precio limpios.
+   ========================================================================== */
+.df-fav {
+  aspect-ratio: 4 / 5;
+  border: 0;
+  border-radius: 24px;
+  background: var(--df-lila);
+  box-shadow: 0 14px 28px -20px rgba(58, 22, 48, 0.55);
+}
+
+/* degradado oscuro neutro (no magenta): se ve más fino sobre las fotos */
+.df-fav::after {
+  background: linear-gradient(180deg, transparent 50%, rgba(25, 10, 20, 0.72) 100%);
+}
+
+/* categoría: texto pequeño translúcido en vez de píldora de color */
+.df-fav__chip,
+.df-fav__chip--rosa,
+.df-fav__chip--turquesa,
+.df-fav__chip--amarillo {
+  top: 12px;
+  left: 12px;
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--df-texto);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: 0.58rem;
+  letter-spacing: 1.2px;
+}
+
+.df-fav__info {
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  gap: 2px;
+}
+
+.df-fav__info strong {
+  font-family: var(--df-body);
+  font-weight: 800;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+}
+
+.df-fav__precio {
+  font-size: 0.78rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.df-fav__precio b {
+  font-family: var(--df-body);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+/* toda la card ya es un link: no hace falta el "Ver en el menú" */
+.df-fav__ver {
+  display: none;
+}
+
+.df-fav__sin-foto {
+  background: linear-gradient(160deg, var(--df-lila) 0%, var(--df-lila-2) 100%);
+}

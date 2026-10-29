@@ -97,7 +97,7 @@ export const Home = () => {
             <div className="df-lt__seccion-cab">
               <h2 id="titulo-favoritos">Los favoritos</h2>
               <span className="df-lt__toca">
-                click it <i className="fa-solid fa-wand-magic-sparkles" aria-hidden="true" />
+                desliza
               </span>
             </div>
             <div className="df-lt__fav-grid">
